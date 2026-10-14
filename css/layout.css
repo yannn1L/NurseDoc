@@ -1,0 +1,50 @@
+/* ============ LAYOUT: topbar, grid, sidebar ============ */
+.topbar {
+  position: sticky; top: 0; z-index: 40;
+  backdrop-filter: blur(12px);
+  background: rgba(255,255,255,.8);
+  border-bottom: 1px solid #e2e8f0;
+}
+.topbar-inner {
+  max-width: 1600px; margin: 0 auto;
+  height: 64px; padding: 0 24px;
+  display: flex; align-items: center; gap: 24px;
+}
+.topbar-search {
+  width: 100%; padding: 10px 96px 10px 40px;
+  font-size: 14px; border-radius: 12px;
+  background: rgba(241,245,249,.7);
+  border: 1px solid transparent;
+  outline: none; transition: all .18s;
+}
+.topbar-search:focus {
+  background: #fff; border-color: #5eead4;
+  box-shadow: 0 0 0 4px rgba(20,184,166,.1);
+}
+.topbar-kbd {
+  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+  font-size: 10px; font-family: monospace; color: #94a3b8;
+  background: #fff; border: 1px solid #e2e8f0;
+  border-radius: 4px; padding: 2px 6px;
+}
+.icon-btn {
+  padding: 10px; border-radius: 8px; color: #64748b;
+  transition: background .15s; cursor: pointer;
+}
+.icon-btn:hover { background: #f1f5f9; }
+
+.app-grid {
+  max-width: 1600px; margin: 0 auto;
+  display: grid; grid-template-columns: repeat(12, minmax(0,1fr));
+  gap: 24px; padding: 24px;
+}
+.sticky-wrap { position: sticky; top: 96px; display: flex; flex-direction: column; gap: 16px; }
+
+.app-footer {
+  max-width: 1600px; margin: 0 auto; padding: 8px 24px 40px;
+}
+.app-footer p { font-size: 11px; color: #94a3b8; }
+.app-footer > *:first-child {
+  display: flex; justify-content: space-between; align-items: center;
+  border-top: 1px solid #e2e8f0; padding-top: 20px; gap: 12px; flex-wrap: wrap;
+}
