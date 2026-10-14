@@ -3,15 +3,17 @@
 ============================================================ */
 export const DOCUMENTS = [
   {
-    id: 'askep-htn',
-    type: 'askep',
-    title: 'Asuhan Keperawatan pada Tn. S dengan Hipertensi',
-    subtitle: 'Ruang Mawar · RSUD Dr. Soetomo · Periode 10–12 Okt 2025',
-    author: 'Ns. Ahmad Fauzi, S.Kep',
-    supervisor: 'Ns. Rina W., M.Kep',
-    date: '12 Oktober 2025',
-    tags: ['Hipertensi Stage 2','Dewasa','Rawat Inap','Risiko Perfusi'],
-    stats: { words: 1240, readTime: 8 },
+id: 'askep-htn',
+  type: 'askep',
+  title: 'Asuhan Keperawatan pada Tn. S dengan Hipertensi',
+  subtitle: 'RSUD Dr. Soetomo · Periode 10–12 Okt 2025',
+  ruangan: 'Irina C2',
+  author: 'Ns. Ahmad Fauzi, S.Kep',
+  clinicalTeacher: 'Ns. Rina W., M.Kep (Dosen)',
+  clinicalInstructor: 'Ns. Dita P., S.Kep (CI Ruang)',
+  date: '12 Oktober 2025',
+  tags: ['Hipertensi Stage 2', 'Dewasa', 'Rawat Inap'],
+  stats: { words: 1240, readTime: 8 },
     summary: 'Asuhan keperawatan komprehensif pada pasien dewasa dengan hipertensi stage 2 disertai nyeri kepala. Fokus intervensi pada manajemen nyeri, kontrol tekanan darah, dan edukasi diet DASH.',
     sections: [
       {
@@ -83,15 +85,17 @@ export const DOCUMENTS = [
   },
 
   {
-    id: 'logbook-1',
-    type: 'logbook',
-    title: 'Logbook Praktik Klinik Keperawatan — Minggu 1–4',
-    subtitle: 'Program Profesi Ners · Semester Ganjil 2025/2026',
-    author: 'Ahmad Fauzi (NIM: 202103045)',
-    supervisor: 'Ns. Rina W., M.Kep · CI Ruang Mawar',
-    date: '1–28 September 2025',
-    tags: ['Praktik Klinik','Ruang Mawar','47 Tindakan'],
-    stats: { words: 640, readTime: 5 },
+id: 'logbook-1',
+  type: 'logbook',
+  title: 'Logbook Praktik Klinik Keperawatan — Minggu 1–4',
+  subtitle: 'Program Profesi Ners · Semester Ganjil 2025/2026',
+  ruangan: 'Irina C2',
+  author: 'Ahmad Fauzi (NIM: 202103045)',
+  clinicalTeacher: 'Ns. Rina W., M.Kep',
+  clinicalInstructor: 'Ns. Dita P., S.Kep',
+  date: '1–28 September 2025',
+  tags: ['Praktik Klinik', 'Ruang Mawar', '47 Tindakan'],
+  stats: { words: 640, readTime: 5 },
     summary: 'Rekapitulasi kegiatan praktik klinik selama 4 minggu meliputi tindakan keperawatan mandiri, kolaboratif, dan pendidikan kesehatan kepada pasien dan keluarga.',
     sections: [
       {
@@ -156,15 +160,17 @@ export const DOCUMENTS = [
   },
 
   {
-    id: 'lp-dm',
-    type: 'lp',
-    title: 'Laporan Pendahuluan: Asuhan Keperawatan pada Pasien Diabetes Mellitus Tipe 2',
-    subtitle: 'Tinjauan Teori & Konsep Dasar Keperawatan Medikal Bedah',
-    author: 'Ahmad Fauzi, S.Kep',
-    supervisor: 'Ns. Rina W., M.Kep',
-    date: '20 September 2025',
-    tags: ['Diabetes Mellitus Tipe 2','Endokrin','Konsep Teori'],
-    stats: { words: 980, readTime: 7 },
+id: 'lp-dm',
+  type: 'lp',
+  title: 'Laporan Pendahuluan: Asuhan Keperawatan pada Pasien Diabetes Mellitus Tipe 2',
+  subtitle: 'Tinjauan Teori & Konsep Dasar Keperawatan Medikal Bedah',
+  ruangan: 'Akademik',
+  author: 'Ahmad Fauzi, S.Kep',
+  clinicalTeacher: 'Ns. Rina W., M.Kep',
+  clinicalInstructor: '—',
+  date: '20 September 2025',
+  tags: ['Diabetes Mellitus Tipe 2', 'Endokrin', 'Konsep Teori'],
+  stats: { words: 980, readTime: 7 },
     summary: 'Tinjauan teoritis diabetes mellitus tipe 2 mencakup definisi, etiologi, patofisiologi, manifestasi klinis, pemeriksaan penunjang, dan konsep asuhan keperawatan menurut teori terkini.',
     sections: [
       {
@@ -228,14 +234,16 @@ export const DOCUMENTS = [
 
   {
     id: 'sop-infus',
-    type: 'sop',
-    title: 'SOP Pemasangan Infus (Intravena Kateter)',
-    subtitle: 'Standar Prosedur Operasional Keperawatan · Revisi 03',
-    author: 'Tim Keperawatan RSUD',
-    supervisor: 'Komite Keperawatan',
-    date: '1 Agustus 2025',
-    tags: ['Prosedur','Invasif','Aspek Legal','NOS'],
-    stats: { words: 720, readTime: 6 },
+  type: 'sop',
+  title: 'SOP Pemasangan Infus (Intravena Kateter)',
+  subtitle: 'Standar Prosedur Operasional Keperawatan · Revisi 03',
+  ruangan: 'Seluruh Unit',
+  author: 'Tim Keperawatan RSUD',
+  clinicalTeacher: '—',
+  clinicalInstructor: 'Komite Keperawatan',
+  date: '1 Agustus 2025',
+  tags: ['Prosedur', 'Invasif', 'Aspek Legal'],
+  stats: { words: 720, readTime: 6 },
     summary: 'Prosedur standar pemasangan infus untuk mencegah komplikasi vaskular dan infeksi, mencakup persiapan alat, langkah kerja, hingga dokumentasi keperawatan.',
     sections: [
       {

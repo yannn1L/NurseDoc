@@ -15,24 +15,25 @@ export const search = {
                     sectionId: sec.id,
                     docTitle: doc.title,
                     type: doc.type,
+                    ruangan: doc.ruangan || '',
                     heading: sec.heading,
                     text,
                 });
             });
         });
     },
+    
     query(q) {
         q = (q || '').trim().toLowerCase();
         if (!q) return [];
-        
         const hits = [];
         for (const row of index) {
             const inH = row.heading.toLowerCase().includes(q);
             const inT = row.text.toLowerCase().includes(q);
             const inD = row.docTitle.toLowerCase().includes(q);
-            if (!inH && !inT && !inD) continue;
-            
-            const score = (inH ? 3 : 0) + (inD ? 2 : 0) + (inT ? 1 : 0);
+            const inR = (row.ruangan || '').toLowerCase().includes(q);
+            if (!inH && !inT && !inD && !inR) continue;
+            const score = (inH ? 3 : 0) + (inD ? 2 : 0) + (inR ? 2 : 0) + (inT ? 1 : 0);
             hits.push({ ...row, score, preview: snippet(row.text, q) });
         }
         return hits.sort((a, b) => b.score - a.score).slice(0, 12);

@@ -3,23 +3,21 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Nursefolio — Portofolio Keperawatan Digital</title>
+<title>nurseDoc — Portofolio Keperawatan Digital</title>
 
 <!-- CDN -->
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/lucide@latest"></script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Lora:ital,wght@0,400;0,500;1,400&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60;700&display=swap" rel="stylesheet">
 
-<!-- Tailwind config -->
+<!-- Tailwind config — semua font Times New Roman -->
 <script>
 tailwind.config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Inter','system-ui','sans-serif'],
-        serif: ['Lora','Georgia','serif'],
-        doc: ['"Source Serif 4"','Georgia','serif'],
+        sans: ['"Times New Roman"','Times','serif'],
+        serif: ['"Times New Roman"','Times','serif'],
+        doc: ['"Times New Roman"','Times','serif'],
       },
       colors: {
         brand: {
@@ -33,7 +31,6 @@ tailwind.config = {
 }
 </script>
 
-<!-- CSS files -->
 <link rel="stylesheet" href="./css/base.css">
 <link rel="stylesheet" href="./css/layout.css">
 <link rel="stylesheet" href="./css/components.css">
@@ -47,10 +44,10 @@ tailwind.config = {
   <div class="topbar-inner">
     <div class="flex items-center gap-3 shrink-0">
       <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center shadow-md shadow-brand-500/25">
-        <i data-lucide="heart-pulse" class="w-5 h-5 text-white"></i>
+        <i data-lucide="file-heart" class="w-5 h-5 text-white"></i>
       </div>
       <div class="leading-tight">
-        <div class="font-bold text-slate-900 tracking-tight">Nursefolio</div>
+        <div class="font-bold text-slate-900 tracking-tight text-[17px]">nurseDoc</div>
         <div class="text-[11px] text-slate-500 -mt-0.5">Portofolio Keperawatan Digital</div>
       </div>
     </div>
@@ -75,17 +72,14 @@ tailwind.config = {
 </header>
 
 <div class="app-grid">
-  <!-- LEFT -->
   <aside class="col-span-12 lg:col-span-3">
     <div class="sticky-wrap">
       <div class="flex items-center justify-between">
         <h2 class="text-sm font-semibold text-slate-900">Perpustakaan Dokumen</h2>
-        <span id="docCount" class="text-[11px] text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">— dokumen</span>
+        <span id="docCount" class="text-[11px] text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">—</span>
       </div>
-
       <div id="filterChips" class="flex flex-wrap gap-1.5" data-region="filters"></div>
       <div id="docList" data-region="sidebar" class="space-y-2"></div>
-
       <div class="tips-card">
         <div class="flex items-start gap-2.5">
           <div class="w-7 h-7 rounded-lg bg-brand-500/10 grid place-items-center shrink-0">
@@ -102,12 +96,10 @@ tailwind.config = {
     </div>
   </aside>
 
-  <!-- CENTER -->
   <main class="col-span-12 lg:col-span-6">
     <article id="docViewer" data-region="viewer"></article>
   </main>
 
-  <!-- RIGHT -->
   <aside class="col-span-12 lg:col-span-3">
     <div class="sticky-wrap">
       <div id="rightMeta" data-region="toc"></div>
@@ -118,9 +110,12 @@ tailwind.config = {
 <div id="searchOverlay" data-region="overlay"></div>
 
 <footer class="app-footer">
-  <p>© 2025 Nursefolio · Dibuat dengan ♥ untuk tenaga keperawatan Indonesia</p>
-  <p>v2.0 · EOMR · Data mockup</p>
+  <p>© 2025 nurseDoc · Dibuat dengan ♥ untuk tenaga keperawatan Indonesia</p>
+  <p>v2.1 · EOMR · Data mockup</p>
 </footer>
+
+<!-- Print root: disembunyikan, hanya muncul saat @media print -->
+<div id="printRoot" aria-hidden="true"></div>
 
 <script type="module" src="./core/app.js"></script>
 </body>
