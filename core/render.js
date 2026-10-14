@@ -1,3 +1,7 @@
+/* ============================================================
+   RENDER — semua renderer + export (print/pdf/docx)
+   EOMR: E (partial) · O (cache) · M (registry) · R (fallback)
+============================================================ */
 import { store } from './store.js';
 import { bus } from './bus.js';
 import { registry } from './registry.js';
@@ -6,9 +10,19 @@ import { search } from './search.js';
 import { mount, safeRender, icons, esc } from './dom.js';
 
 export const render = {
-  all() { render.filters(); render.sidebar(); render.viewer(); render.toc(); render.overlay(); render.docCount(); icons(); },
+  all() {
+    render.filters();
+    render.sidebar();
+    render.viewer();
+    render.toc();
+    render.overlay();
+    render.docCount();
+    icons();
+  },
 
-  /* ---------- SIDEBAR ---------- */
+  /* ============================================================
+     SIDEBAR
+  ============================================================ */
   filters() {
     safeRender('filters', () => {
       const types = store.state.types;
@@ -58,7 +72,9 @@ export const render = {
     if (el) el.textContent = `${store.selectors.filteredDocs().length} dokumen`;
   },
 
-  /* ---------- VIEWER ---------- */
+  /* ============================================================
+     VIEWER
+  ============================================================ */
   viewer() {
     safeRender('viewer', () => {
       const doc = store.selectors.activeDoc();
@@ -88,29 +104,21 @@ export const render = {
       </div>`;
   },
 
-  /* ---------- THUMBNAIL STRIP ---------- */
   _thumbStrip(doc) {
     const pages = paging.paginate(doc);
     const thumbs = pages.map((page, idx) => {
-      // ringkas isi: tampilkan hingga 3 header/paragraf pertama
       const lines = [];
-      let headCount = 0;
       for (const item of page.blocks) {
         if (lines.length >= 8) break;
-        if (item.kind === 'title') { lines.push({ type:'title' }); }
-        else if (item.kind === 'section-header') { lines.push({ type:'h', w: 60 }); headCount++; }
+        if (item.kind === 'title') lines.push({ type:'title' });
+        else if (item.kind === 'section-header') lines.push({ type:'h' });
         else if (item.kind === 'block') {
           const w = { paragraph:85, subheading:50, list:70, steps:75, table:95, quote:80, callout:90, diagnosa:85, soap:80 }[item.block.type] || 80;
           lines.push({ type:'p', w });
         }
       }
-
       const mini = lines.map(l => {
-        if (l.type === 'title')
-          return `<div class="thumb-title-block">
-            <div class="thumb-title-line"></div>
-            <div class="thumb-title-sub"></div>
-          </div>`;
+        if (l.type === 'title') return `<div class="thumb-title-block"><div class="thumb-title-line"></div><div class="thumb-title-sub"></div></div>`;
         if (l.type === 'h') return `<div class="thumb-mini-h w60"></div>`;
         return `<div class="thumb-mini-line w${l.w}"></div>`;
       }).join('');
@@ -124,14 +132,9 @@ export const render = {
           <div class="thumb-num">Hal. ${idx+1}</div>
         </button>`;
     }).join('');
-
-    return `
-      <div class="thumb-strip mb-4">
-        ${thumbs}
-      </div>`;
+    return `<div class="thumb-strip mb-4">${thumbs}</div>`;
   },
 
-  /* ---------- WEB VIEW (header diperbaiki untuk desktop) ---------- */
   _webView(doc) {
     const t = store.selectors.typeMeta(doc.type);
     const sectionsHtml = doc.sections.map((sec) => `
@@ -152,7 +155,6 @@ export const render = {
 
     return `
       <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden fade-in">
-        <!-- HEADER: didesain ulang untuk desktop -->
         <div class="px-10 pt-10 pb-8 border-b border-slate-100">
           <div class="flex items-center gap-2 mb-4">
             <span class="inline-flex items-center gap-1.5 text-[10.5px] font-bold uppercase tracking-wider text-${t.color}-700 bg-${t.color}-50 border border-${t.color}-100 px-2.5 py-1 rounded-full">
@@ -160,13 +162,9 @@ export const render = {
             </span>
             <span class="text-[11px] text-slate-400">· ${esc(t.desc)}</span>
           </div>
-
-          <h1 class="text-[30px] lg:text-[34px] xl:text-[36px] leading-[1.15] font-bold text-slate-900 tracking-tight max-w-3xl">
-            ${esc(doc.title)}
-          </h1>
+          <h1 class="text-[30px] lg:text-[34px] xl:text-[36px] leading-[1.15] font-bold text-slate-900 tracking-tight max-w-3xl">${esc(doc.title)}</h1>
           <p class="text-[14px] text-slate-500 mt-3 max-w-2xl leading-relaxed">${esc(doc.subtitle||'')}</p>
 
-          <!-- Meta info: grid 2 kolom desktop -->
           <div class="mt-7 grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-4 text-[12.5px]">
             <div class="space-y-3">
               <div class="flex items-center gap-3">
@@ -189,7 +187,6 @@ export const render = {
                 </div>
               </div>` : ''}
             </div>
-
             <div class="space-y-3">
               ${doc.clinicalTeacher ? `
               <div class="flex items-center gap-3">
@@ -233,7 +230,6 @@ export const render = {
           </div>` : ''}
         </div>
 
-        <!-- STATS BAR -->
         <div class="grid grid-cols-3 divide-x divide-slate-100 border-b border-slate-100 bg-slate-50/40">
           <div class="px-6 py-4 text-center">
             <div class="text-[10.5px] uppercase tracking-wider text-slate-500 font-semibold">Section</div>
@@ -253,7 +249,6 @@ export const render = {
       </div>`;
   },
 
-  /* ---------- DOCUMENT VIEW ---------- */
   _docView(doc) {
     const t = store.selectors.typeMeta(doc.type);
     const pages = paging.paginate(doc);
@@ -297,7 +292,6 @@ export const render = {
     return `<div class="paper-wrap fade-in">${sheets}</div>`;
   },
 
-  /* ---------- TOC + META ---------- */
   toc() {
     safeRender('toc', () => {
       const doc = store.selectors.activeDoc();
@@ -358,14 +352,12 @@ export const render = {
       entries.forEach((en) => {
         if (!en.isIntersecting) return;
         links.forEach((l) => l.classList.remove('scrollspy-active'));
-        const a = document.querySelector(`.toc-link[href="#${CSS.escape(en.target.id)}"]`);
-        a?.classList.add('scrollspy-active');
+        document.querySelector(`.toc-link[href="#${CSS.escape(en.target.id)}"]`)?.classList.add('scrollspy-active');
       });
     }, { rootMargin: '-15% 0px -70% 0px', threshold: 0 });
     targets.forEach((t) => t.id && obs.observe(t));
   },
 
-  /* ---------- SEARCH OVERLAY ---------- */
   overlay() {
     safeRender('overlay', () => {
       const s = store.state.search;
@@ -385,8 +377,7 @@ export const render = {
                   </div>
                   <div class="min-w-0 flex-1">
                     <div class="text-[11px] text-slate-500 mb-0.5">
-                      ${esc(t.label)} · ${esc(h.docTitle.slice(0,50))}…
-                      ${h.ruangan ? ` · ${esc(h.ruangan)}` : ''}
+                      ${esc(t.label)} · ${esc(h.docTitle.slice(0,50))}…${h.ruangan ? ` · ${esc(h.ruangan)}` : ''}
                     </div>
                     <div class="text-[13px] font-semibold text-slate-900">${esc(h.heading)}</div>
                     <div class="text-[11.5px] text-slate-500 line-clamp-2 mt-0.5">${esc(h.preview)}</div>
@@ -415,44 +406,296 @@ export const render = {
   },
 
   /* ============================================================
-     EXPORT: PRINT / PDF / DOCX
+     EXPORT — PRINT / PDF (popup strategy)
+     Popup = dokumen terpisah, tidak ada konflik CSS/lifecycle.
+     Fallback ke iframe persistent kalau popup diblokir.
   ============================================================ */
-  _preparePrint() {
-    const doc = store.selectors.activeDoc();
-    if (!doc) return false;
-    const root = document.getElementById('printRoot');
-    root.innerHTML = render._docView(doc);
-    document.body.classList.add('printing');
+  _buildPrintHtml(doc) {
+    const body = render._docView(doc);
+    return `<!DOCTYPE html>
+<html lang="id"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${esc(doc.title)}</title>
+<style>${PRINT_CSS}</style>
+</head><body>${body}</body></html>`;
+  },
+
+  /** Popup window = cara paling stabil lintas-browser (desktop & mobile). */
+  _printViaPopup(html) {
+    // window.open HARUS dipanggil dari user gesture (click) — jangan async.
+    const w = window.open('', '_blank', 'width=1000,height=1300,menubar=no,toolbar=no,location=no,status=no');
+    if (!w) return false;
+
+    try {
+      w.document.open();
+      w.document.write(html);
+      w.document.close();
+    } catch (e) {
+      console.error('[print:popup]', e);
+      return false;
+    }
+
+    // Tunggu load → render → print
+    const triggerPrint = () => {
+      // beri waktu font & layout settle
+      setTimeout(() => {
+        try {
+          w.focus();
+          w.print();
+        } catch (e) {
+          console.error('[print:popup:exec]', e);
+        }
+      }, 350);
+    };
+
+    if (w.document.readyState === 'complete') triggerPrint();
+    else w.addEventListener('load', triggerPrint, { once: true });
+
     return true;
   },
-  _cleanupPrint() {
-    document.body.classList.remove('printing');
-    document.getElementById('printRoot').innerHTML = '';
+
+  /** Fallback: iframe persistent — JANGAN dihapus otomatis. */
+  _printIframe: null,
+  _printViaIframe(html) {
+    let iframe = render._printIframe;
+    if (!iframe || !document.body.contains(iframe)) {
+      iframe = document.createElement('iframe');
+      iframe.setAttribute('aria-hidden', 'true');
+      // JANGAN pakai width:0/height:0 — bikin blank di Chrome Android.
+      // Pakai 1px tapi tetap "rendered":
+      iframe.style.cssText = 'position:fixed;right:0;bottom:0;width:1px;height:1px;border:0;opacity:0;pointer-events:none;';
+      document.body.appendChild(iframe);
+      render._printIframe = iframe;
+    }
+
+    const idoc = iframe.contentDocument || iframe.contentWindow.document;
+    idoc.open();
+    idoc.write(html);
+    idoc.close();
+
+    const triggerPrint = () => {
+      setTimeout(() => {
+        try {
+          iframe.contentWindow.focus();
+          iframe.contentWindow.print();
+        } catch (e) {
+          console.error('[print:iframe]', e);
+          showToast('Cetak gagal dibuka.', 'alert-circle');
+        }
+      }, 250);
+    };
+
+    if (idoc.readyState === 'complete') triggerPrint();
+    else iframe.addEventListener('load', triggerPrint, { once: true });
   },
 
   printCurrent() {
-    if (!render._preparePrint()) return;
-    setTimeout(() => { window.print(); }, 60);
+    const doc = store.selectors.activeDoc();
+    if (!doc) return;
+    const html = render._buildPrintHtml(doc);
+
+    // Popup dulu
+    if (render._printViaPopup(html)) return;
+    // Fallback
+    showToast('Popup diblokir, memakai mode alternatif.', 'info');
+    render._printViaIframe(html);
   },
 
   downloadPdf() {
-    if (!render._preparePrint()) return;
-    showToast('Dialog cetak akan terbuka. Pilih "Save as PDF" sebagai destinasi.', 'file-down');
-    setTimeout(() => { window.print(); }, 60);
-  },
-
-  downloadDocx() {
     const doc = store.selectors.activeDoc();
     if (!doc) return;
-    const html = buildWordHtml(doc, store.selectors.typeMeta(doc.type));
-    const blob = new Blob(['\ufeff', html], { type: 'application/msword' });
-    triggerDownload(blob, `${doc.id}.doc`);
-    showToast('Berkas DOCX berhasil diunduh.', 'file-type-2');
+    showToast('Pada dialog cetak, pilih "Save as PDF".', 'file-down');
+
+    const html = render._buildPrintHtml(doc);
+    if (render._printViaPopup(html)) return;
+    showToast('Popup diblokir, memakai mode alternatif.', 'info');
+    render._printViaIframe(html);
+  },
+
+  async downloadDocx() {
+    const doc = store.selectors.activeDoc();
+    if (!doc) return;
+
+    if (!window.docx) {
+      showToast('Library DOCX belum siap. Refresh halaman.', 'alert-circle');
+      return;
+    }
+
+    try {
+      showToast('Menyusun berkas DOCX…', 'loader');
+      const blob = await buildDocxBlob(doc);
+      triggerDownload(blob, `${doc.id}.docx`);
+      showToast('Berkas DOCX berhasil diunduh.', 'file-type-2');
+    } catch (err) {
+      console.error('[docx]', err);
+      showToast('Gagal membuat DOCX: ' + err.message, 'alert-circle');
+    }
   },
 };
 
 /* ============================================================
-   HELPERS EXPORT
+   PRINT_CSS — self-contained, identik dengan paper view
+============================================================ */
+const PRINT_CSS = `
+  *, *::before, *::after {
+    box-sizing: border-box;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  html, body {
+    margin: 0; padding: 0; background: #fff;
+    font-family: "Times New Roman", Times, serif;
+    color: #1e293b;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  .paper-wrap { background: #fff; padding: 0; border-radius: 0; }
+  .paper-sheet {
+    background: #fff;
+    width: 210mm;
+    min-height: 297mm;
+    padding: 20mm 18mm;
+    margin: 0 auto;
+    position: relative;
+    page-break-after: always;
+    break-after: page;
+    display: block;
+    overflow: visible;
+  }
+  .paper-sheet:last-child { page-break-after: auto; break-after: auto; }
+
+  .page-header {
+    position: absolute; top: 10mm; left: 18mm; right: 18mm;
+    display: flex; justify-content: space-between; align-items: baseline;
+    font-size: 8.5pt; color: #94a3b8; letter-spacing: .12em; text-transform: uppercase;
+    padding-bottom: 2.5mm; border-bottom: .5pt solid #e2e8f0;
+  }
+  .page-footer {
+    position: absolute; bottom: 10mm; left: 18mm; right: 18mm;
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 8.5pt; color: #94a3b8;
+    padding-top: 2.5mm; border-top: .5pt solid #e2e8f0;
+  }
+  .page-num { font-variant-numeric: tabular-nums; }
+
+  .doc-content { font-family: "Times New Roman", Times, serif; font-size: 11pt; line-height: 1.5; color: #1e293b; }
+
+  .doc-title {
+    font-size: 17pt; font-weight: 700; text-align: center; color: #0f172a;
+    line-height: 1.25; margin: 0 0 5pt;
+  }
+  .doc-subtitle {
+    text-align: center; font-size: 11pt; font-style: italic;
+    color: #64748b; margin: 0 0 4pt; line-height: 1.4;
+  }
+  .doc-meta {
+    text-align: center; font-size: 10pt; color: #64748b;
+    margin: 8pt 0 18pt; padding-bottom: 10pt;
+    border-bottom: 1pt solid #e2e8f0; line-height: 1.7;
+  }
+  .doc-meta b { color: #1e293b; font-weight: 700; }
+
+  .doc-h2 {
+    font-size: 13pt; font-weight: 700; color: #0f172a;
+    margin: 14pt 0 8pt; padding-bottom: 3pt;
+    border-bottom: 1.25pt solid #0d9488;
+    display: block;
+  }
+  .doc-h2 .num { color: #0d9488; margin-right: 4pt; }
+  .doc-h3 { font-size: 11.5pt; font-weight: 700; color: #0f172a; margin: 10pt 0 4pt; }
+
+  .doc-p {
+    font-size: 11pt; line-height: 1.7;
+    text-align: justify; text-justify: inter-word;
+    margin: 0 0 8pt; color: #1e293b;
+  }
+  .doc-ul, .doc-ol {
+    margin: 4pt 0 8pt 4pt; padding-left: 20pt;
+    font-size: 11pt; line-height: 1.7; color: #1e293b;
+  }
+  .doc-ul li { list-style: disc; margin-bottom: 2pt; }
+  .doc-ol li { list-style: decimal; margin-bottom: 3pt; padding-left: 3pt; }
+
+  .doc-table {
+    width: 100%; border-collapse: collapse;
+    table-layout: auto;
+    font-family: "Times New Roman", Times, serif;
+    font-size: 10pt; margin: 8pt 0 12pt;
+    page-break-inside: avoid;
+  }
+  .doc-table th, .doc-table td {
+    border: .75pt solid #cbd5e1; padding: 5pt 7pt;
+    text-align: left; vertical-align: top; line-height: 1.4;
+    word-wrap: break-word;
+  }
+  .doc-table th {
+    background: #f1f5f9; font-weight: 700; color: #0f172a; font-size: 9.5pt;
+  }
+  .doc-table tr:nth-child(even) td { background: #fafbfc; }
+  .doc-table td:first-child { font-weight: 600; color: #0f172a; }
+
+  .doc-quote {
+    margin: 10pt 0; padding: 8pt 12pt;
+    border-left: 2.5pt solid #0d9488; background: #f0fdfa;
+    font-style: italic; font-size: 10.5pt; line-height: 1.7;
+    color: #134e4a;
+  }
+  .doc-callout {
+    margin: 10pt 0; padding: 8pt 10pt;
+    border: .75pt solid #bae6fd; background: #f0f9ff;
+    font-size: 10.5pt; line-height: 1.6; color: #0c4a6e;
+  }
+  .doc-callout.warning { border-color: #fde68a; background: #fffbeb; color: #78350f; }
+
+  .doc-diagnosa {
+    margin: 6pt 0; padding: 8pt 10pt;
+    border: .75pt solid #e2e8f0;
+    border-left: 2.5pt solid #0d9488;
+    background: #fafbfc;
+    page-break-inside: avoid;
+  }
+  .doc-diagnosa .label {
+    font-size: 8.5pt; font-weight: 700; letter-spacing: .1em;
+    text-transform: uppercase; color: #0d9488; margin-bottom: 2pt;
+  }
+  .doc-diagnosa .title { font-size: 11pt; font-weight: 700; color: #0f172a; margin-bottom: 3pt; }
+  .doc-diagnosa .detail { font-size: 10pt; line-height: 1.6; color: #475569; }
+
+  .doc-soap { margin: 8pt 0; page-break-inside: avoid; }
+  .soap-item {
+    display: flex; gap: 8pt; padding: 5pt 8pt;
+    background: #f8fafc;
+    border-left: 2.5pt solid #cbd5e1;
+    margin-bottom: 4pt;
+    font-size: 10pt; line-height: 1.6; color: #334155;
+  }
+  .soap-item .k { font-weight: 700; color: #0d9488; font-size: 11pt; min-width: 10pt; }
+  .soap-item .lbl {
+    font-weight: 700; color: #0f172a; font-size: 9pt;
+    text-transform: uppercase; letter-spacing: .06em;
+    display: block; margin-bottom: 2pt;
+  }
+
+  .doc-steps { margin: 8pt 0 10pt; padding-left: 0; list-style: none; }
+  .doc-steps li {
+    display: flex; gap: 8pt; font-size: 10.5pt; line-height: 1.7;
+    margin-bottom: 6pt; color: #1e293b;
+    page-break-inside: avoid;
+  }
+  .doc-steps li .n { font-weight: 700; color: #0d9488; min-width: 14pt; }
+  .doc-steps li .txt b { color: #0f172a; }
+
+  .fade-in { animation: none !important; }
+
+  @page { size: A4; margin: 0; }
+  @media print {
+    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+`;
+
+/* ============================================================
+   HELPERS
 ============================================================ */
 function triggerDownload(blob, filename) {
   const url = URL.createObjectURL(blob);
@@ -460,10 +703,11 @@ function triggerDownload(blob, filename) {
   a.href = url; a.download = filename;
   document.body.appendChild(a);
   a.click();
-  setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 100);
+  setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 200);
 }
 
 function showToast(text, icon = 'info') {
+  document.querySelectorAll('.toast').forEach(t => t.remove());
   const el = document.createElement('div');
   el.className = 'toast';
   el.innerHTML = `<i data-lucide="${icon}" class="w-4 h-4"></i><span>${esc(text)}</span>`;
@@ -474,86 +718,282 @@ function showToast(text, icon = 'info') {
 }
 
 /* ============================================================
-   WORD EXPORT — inline CSS, table-friendly, dibuka di MS Word
+   DOCX BUILDER — native .docx dengan lebar kolom eksplisit
 ============================================================ */
-function buildWordHtml(doc, t) {
-  const FONT = "'Times New Roman', Times, serif";
+async function buildDocxBlob(doc) {
+  const D = window.docx;
+  const {
+    Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell,
+    WidthType, AlignmentType, BorderStyle, Footer, PageNumber,
+    TableLayoutType, VerticalAlign,
+  } = D;
 
-  const s = (style) => style;
+  const FONT = 'Times New Roman';
+  const CONTENT_WIDTH = 9638; // twips — A4 (11906) - 2×1134 margin
 
-  const sectionHtml = doc.sections.map(sec => `
-    <h2 style="${s(`font-family:${FONT};font-size:14pt;font-weight:bold;color:#0f172a;border-bottom:1.5pt solid #0d9488;padding-bottom:4pt;margin:18pt 0 10pt;`)}">
-      ${sec.num}. ${esc(sec.heading)}
-    </h2>
-    ${sec.blocks.map(b => wordBlock(b, FONT)).join('')}
-  `).join('');
+  const children = [];
 
-  return `
-    <html xmlns:o="urn:schemas-microsoft-com:office:office"
-          xmlns:w="urn:schemas-microsoft-com:office:word"
-          xmlns="http://www.w3.org/TR/REC-html40">
-    <head>
-      <meta charset="utf-8" />
-      <title>${esc(doc.title)}</title>
-      <!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View><w:Zoom>100</w:Zoom></w:WordDocument></xml><![endif]-->
-      <style>
-        @page { size: A4; margin: 2cm 1.8cm; }
-        body { font-family: ${FONT}; font-size: 12pt; color: #1e293b; line-height: 1.5; }
-        table { border-collapse: collapse; width: 100%; }
-        td, th { border: 0.75pt solid #94a3b8; padding: 4pt 6pt; vertical-align: top; font-size: 10.5pt; }
-        th { background: #f1f5f9; font-weight: bold; }
-      </style>
-    </head>
-    <body>
-      <div style="text-align:center;margin-bottom:24pt;">
-        <div style="font-size:18pt;font-weight:bold;color:#0f172a;">${esc(doc.title)}</div>
-        <div style="font-size:11pt;font-style:italic;color:#64748b;margin-top:6pt;">${esc(doc.subtitle||'')}</div>
-        <div style="font-size:10pt;color:#475569;margin-top:14pt;line-height:1.7;">
-          <div>Disusun oleh <b>${esc(doc.author)}</b></div>
-          ${doc.ruangan ? `<div>Ruangan <b>${esc(doc.ruangan)}</b></div>` : ''}
-          ${doc.clinicalTeacher ? `<div>Clinical Teacher <b>${esc(doc.clinicalTeacher)}</b></div>` : ''}
-          ${doc.clinicalInstructor ? `<div>Clinical Instructor <b>${esc(doc.clinicalInstructor)}</b></div>` : ''}
-          <div>${esc(doc.date)}</div>
-        </div>
-      </div>
-      <hr style="border:none;border-top:0.5pt solid #cbd5e1;margin-bottom:20pt;">
-      ${sectionHtml}
-    </body></html>`;
+  /* ---------- TITLE ---------- */
+  children.push(new Paragraph({
+    alignment: AlignmentType.CENTER,
+    spacing: { after: 120 },
+    children: [new TextRun({ text: doc.title, bold: true, size: 32, font: FONT })],
+  }));
+
+  if (doc.subtitle) {
+    children.push(new Paragraph({
+      alignment: AlignmentType.CENTER,
+      spacing: { after: 100 },
+      children: [new TextRun({ text: doc.subtitle, italics: true, size: 22, font: FONT, color: '64748B' })],
+    }));
+  }
+
+  /* ---------- META ---------- */
+  const metaLines = [
+    `Disusun oleh ${doc.author}`,
+    doc.ruangan ? `Ruangan: ${doc.ruangan}` : null,
+    doc.clinicalTeacher ? `Clinical Teacher: ${doc.clinicalTeacher}` : null,
+    doc.clinicalInstructor ? `Clinical Instructor: ${doc.clinicalInstructor}` : null,
+    doc.date,
+  ].filter(Boolean);
+
+  metaLines.forEach(line => children.push(new Paragraph({
+    alignment: AlignmentType.CENTER,
+    spacing: { after: 40 },
+    children: [new TextRun({ text: line, size: 20, font: FONT, color: '475569' })],
+  })));
+
+  children.push(new Paragraph({
+    spacing: { before: 200, after: 200 },
+    border: { bottom: { style: BorderStyle.SINGLE, size: 6, color: 'CBD5E1' } },
+    children: [],
+  }));
+
+  /* ---------- SECTIONS ---------- */
+  for (const sec of doc.sections) {
+    children.push(new Paragraph({
+      spacing: { before: 260, after: 120 },
+      border: { bottom: { style: BorderStyle.SINGLE, size: 8, color: '0D9488' } },
+      children: [new TextRun({ text: `${sec.num}. ${sec.heading}`, bold: true, size: 26, font: FONT })],
+    }));
+
+    for (const b of sec.blocks) {
+      blockToDocxParagraphs(b, D, FONT, CONTENT_WIDTH).forEach(p => children.push(p));
+    }
+  }
+
+  /* ---------- DOCUMENT ---------- */
+  const docFile = new Document({
+    creator: 'nurseDoc',
+    title: doc.title,
+    description: doc.summary || '',
+    styles: {
+      default: {
+        document: {
+          run: { font: FONT, size: 22 },
+          paragraph: { spacing: { line: 360 } },
+        },
+      },
+    },
+    sections: [{
+      properties: {
+        page: {
+          size: { width: 11906, height: 16838 },
+          margin: { top: 1134, right: 1134, bottom: 1134, left: 1134 },
+        },
+      },
+      footers: {
+        default: new Footer({
+          children: [new Paragraph({
+            alignment: AlignmentType.RIGHT,
+            children: [
+              new TextRun({ text: 'Hal. ', size: 18, font: FONT, color: '94A3B8' }),
+              new TextRun({ children: [PageNumber.CURRENT], size: 18, font: FONT, color: '94A3B8' }),
+              new TextRun({ text: ' dari ', size: 18, font: FONT, color: '94A3B8' }),
+              new TextRun({ children: [PageNumber.TOTAL_PAGES], size: 18, font: FONT, color: '94A3B8' }),
+            ],
+          })],
+        }),
+      },
+      children,
+    }],
+  });
+
+  return await Packer.toBlob(docFile);
 }
 
-function wordBlock(b, FONT) {
+/* ---------- Hitung lebar kolom proporsional terhadap isi ---------- */
+function computeColumnWidths(headers, rows, totalWidth = 9638) {
+  const n = headers.length;
+  if (!n) return [];
+
+  // Lebar minimum agar tiap kolom muat ≥ ~10 karakter
+  const MIN = Math.floor(totalWidth / (n * 2));
+
+  // Cari panjang maksimum tiap kolom
+  const maxLens = headers.map((h, i) => {
+    let max = String(h ?? '').length;
+    (rows || []).forEach(r => {
+      const len = String(r[i] ?? '').length;
+      if (len > max) max = len;
+    });
+    return Math.max(max, 8);
+  });
+
+  const total = maxLens.reduce((a, b) => a + b, 0);
+  const widths = maxLens.map(len => Math.max(MIN, Math.round((len / total) * totalWidth)));
+
+  // Koreksi agar pas
+  const sum = widths.reduce((a, b) => a + b, 0);
+  if (sum !== totalWidth) widths[widths.length - 1] += totalWidth - sum;
+
+  return widths;
+}
+
+function blockToDocxParagraphs(b, D, FONT, CONTENT_WIDTH) {
+  const {
+    Paragraph, TextRun, Table, TableRow, TableCell,
+    WidthType, AlignmentType, BorderStyle, TableLayoutType, VerticalAlign,
+  } = D;
+
+  const out = [];
+  const border = { style: BorderStyle.SINGLE, size: 4, color: 'CBD5E1' };
+  const run = (text, opts = {}) => new TextRun({ text: String(text ?? ''), font: FONT, size: 22, ...opts });
+  const cellPara = (text, opts = {}) => new Paragraph({
+    spacing: { before: 40, after: 40, line: 300 },
+    children: [run(text, { size: 20, ...opts })],
+  });
+
   switch (b.type) {
     case 'paragraph':
-      return `<p style="font-family:${FONT};font-size:12pt;line-height:1.6;text-align:justify;margin:6pt 0;">${esc(b.text)}</p>`;
-    case 'subheading':
-      return `<h3 style="font-family:${FONT};font-size:12pt;font-weight:bold;color:#0f172a;margin:10pt 0 4pt;">${esc(b.text)}</h3>`;
-    case 'list':
-      return `<ul style="font-family:${FONT};font-size:12pt;margin:4pt 0 10pt 22pt;">${b.items.map(i=>`<li style="margin-bottom:2pt;">${esc(i)}</li>`).join('')}</ul>`;
-    case 'steps':
-      return `<ol style="font-family:${FONT};font-size:11.5pt;margin:4pt 0 10pt 22pt;">${b.items.map(s=>`<li style="margin-bottom:4pt;"><b>${esc(s.step)}.</b> ${esc(s.text)}</li>`).join('')}</ol>`;
-    case 'table':
-      return `<table><thead><tr>${b.headers.map(h=>`<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>${b.rows.map(r=>`<tr>${r.map(c=>`<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
-    case 'quote':
-      return `<div style="font-family:${FONT};font-size:11.5pt;font-style:italic;border-left:2pt solid #0d9488;background:#f0fdfa;padding:6pt 10pt;margin:8pt 0;color:#134e4a;">"${esc(b.text)}"</div>`;
-    case 'callout':
-      return `<div style="font-family:${FONT};font-size:11pt;border:0.75pt solid ${b.variant==='warning'?'#fcd34d':'#bae6fd'};background:${b.variant==='warning'?'#fffbeb':'#f0f9ff'};padding:6pt 10pt;margin:8pt 0;color:${b.variant==='warning'?'#78350f':'#0c4a6e'};">${esc(b.text)}</div>`;
-    case 'diagnosa':
-      return `<div style="font-family:${FONT};border:0.75pt solid #cbd5e1;border-left:3pt solid #0d9488;background:#fafbfc;padding:6pt 10pt;margin:6pt 0;">
-        <div style="font-size:8.5pt;font-weight:bold;color:#0d9488;letter-spacing:.05em;text-transform:uppercase;">${esc(b.priority||'')}</div>
-        <div style="font-size:11pt;font-weight:bold;color:#0f172a;margin:3pt 0;">${esc(b.title)}</div>
-        <div style="font-size:10.5pt;color:#475569;line-height:1.6;">${esc(b.detail||'')}</div>
-      </div>`;
-    case 'soap':
-      return `<div style="font-family:${FONT};margin:8pt 0;">
-        ${[['S','Subjektif',b.s],['O','Objektif',b.o],['A','Analisis',b.a],['P','Perencanaan',b.p]]
-          .map(([k,l,v])=>`<div style="border-left:2pt solid #cbd5e1;background:#f8fafc;padding:5pt 10pt;margin-bottom:4pt;">
-            <b style="color:#0d9488;">${k}</b> — <b>${l}:</b> ${esc(v)}
-          </div>`).join('')}
-      </div>`;
-    default:
-      return `<p style="font-family:${FONT};font-style:italic;color:#94a3b8;">[blok: ${esc(b.type)}]</p>`;
-  }
-}
+      out.push(new Paragraph({
+        alignment: AlignmentType.JUSTIFIED,
+        spacing: { after: 120, line: 360 },
+        children: [run(b.text)],
+      }));
+      break;
 
-/* Export helper dipakai app.js */
-export { showToast };
+    case 'subheading':
+      out.push(new Paragraph({
+        spacing: { before: 160, after: 60 },
+        children: [run(b.text, { bold: true, size: 22 })],
+      }));
+      break;
+
+    case 'list':
+      (b.items || []).forEach(item => out.push(new Paragraph({
+        bullet: { level: 0 },
+        spacing: { after: 40 },
+        children: [run(item)],
+      })));
+      break;
+
+    case 'steps':
+      (b.items || []).forEach((s, i) => out.push(new Paragraph({
+        indent: { left: 360, hanging: 240 },
+        spacing: { after: 80 },
+        children: [
+          run(`${i + 1}. `, { bold: true }),
+          run(`${s.step}. `, { bold: true }),
+          run(s.text),
+        ],
+      })));
+      break;
+
+    case 'table': {
+      const headers = b.headers || [];
+      const rows = b.rows || [];
+      const columnWidths = computeColumnWidths(headers, rows, CONTENT_WIDTH);
+
+      const headerRow = new TableRow({
+        tableHeader: true,
+        children: headers.map((h, i) => new TableCell({
+          width: { size: columnWidths[i], type: WidthType.DXA },
+          shading: { fill: 'F1F5F9' },
+          verticalAlign: VerticalAlign.TOP,
+          margins: { top: 60, bottom: 60, left: 100, right: 100 },
+          children: [cellPara(h, { bold: true })],
+        })),
+      });
+
+      const bodyRows = rows.map(r => new TableRow({
+        children: headers.map((_, i) => new TableCell({
+          width: { size: columnWidths[i], type: WidthType.DXA },
+          verticalAlign: VerticalAlign.TOP,
+          margins: { top: 60, bottom: 60, left: 100, right: 100 },
+          children: [cellPara(r[i] ?? '')],
+        })),
+      }));
+
+      out.push(new Table({
+        width: { size: CONTENT_WIDTH, type: WidthType.DXA },
+        columnWidths,
+        layout: TableLayoutType.FIXED,
+        borders: {
+          top: border, bottom: border, left: border, right: border,
+          insideHorizontal: border, insideVertical: border,
+        },
+        rows: [headerRow, ...bodyRows],
+      }));
+      out.push(new Paragraph({ spacing: { after: 120 }, children: [] }));
+      break;
+    }
+
+    case 'quote':
+      out.push(new Paragraph({
+        indent: { left: 360 },
+        spacing: { before: 120, after: 120 },
+        border: { left: { style: BorderStyle.SINGLE, size: 12, color: '0D9488' } },
+        children: [run(`"${b.text}"`, { italics: true, size: 21, color: '134E4A' })],
+      }));
+      break;
+
+    case 'callout':
+      out.push(new Paragraph({
+        indent: { left: 240 },
+        spacing: { before: 120, after: 120 },
+        shading: {
+          type: 'clear',
+          fill: b.variant === 'warning' ? 'FFFBEB' : 'F0F9FF',
+          color: 'auto',
+        },
+        children: [run(b.text, { size: 21 })],
+      }));
+      break;
+
+    case 'diagnosa':
+      if (b.priority) out.push(new Paragraph({
+        spacing: { before: 120, after: 20 },
+        children: [run(b.priority, { bold: true, size: 18, color: '0D9488' })],
+      }));
+      out.push(new Paragraph({
+        spacing: { after: 40 },
+        children: [run(b.title, { bold: true, size: 22 })],
+      }));
+      if (b.detail) out.push(new Paragraph({
+        spacing: { after: 120 },
+        children: [run(b.detail, { size: 20, color: '475569' })],
+      }));
+      break;
+
+    case 'soap':
+      [['S','Subjektif', b.s],['O','Objektif', b.o],['A','Analisis', b.a],['P','Perencanaan', b.p]]
+        .forEach(([k, l, v]) => out.push(new Paragraph({
+          indent: { left: 240 },
+          spacing: { after: 80 },
+          children: [
+            run(`${k} — `, { bold: true, color: '0D9488' }),
+            run(`${l}: `, { bold: true }),
+            run(v),
+          ],
+        })));
+      break;
+
+    default:
+      out.push(new Paragraph({
+        children: [run(`[blok: ${b.type}]`, { italics: true, color: '94A3B8' })],
+      }));
+  }
+
+  return out;
+}
