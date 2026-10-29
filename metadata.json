@@ -1,0 +1,6 @@
+{
+  "name": "nurseDoc — Portofolio Keperawatan Digital",
+  "description": "Portofolio keperawatan digital dan dokumentasi klinis untuk perawat Indonesia, dengan dukungan tampilan web dan dokumen cetak, pencarian cerdas, dan ekspor DOCX.",
+  "permissions": [],
+  "capabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

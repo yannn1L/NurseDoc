@@ -1,0 +1,6 @@
+{
+  "summary":  "Rencana implementasi refaktorisasi arsitektur data dokumen klinis ke dalam subfolder kategori (askep/, lp/, logbook/, sop/) dengan penamaan berkas semantik lengkap [kategori]-[inisial]-[dxMedis]-[dxKep]-[id].ts dan index aggregator berjenjang.",
+  "updatedAt":  "2026-10-29T01:26:36.240467153Z",
+  "requestFeedback":  true,
+  "userFacing":  true
+}

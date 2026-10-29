@@ -1,120 +1,16 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>nurseDoc — Portofolio Keperawatan Digital</title>
-
-<!-- CDN -->
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://unpkg.com/lucide@latest"></script>
-<script src="https://unpkg.com/docx@8.5.0/build/index.umd.js"></script>
-
-<!-- Tailwind config — semua font Times New Roman -->
-<script>
-tailwind.config = {
-  theme: {
-    extend: {
-      fontFamily: {
-        sans: ['"Times New Roman"','Times','serif'],
-        serif: ['"Times New Roman"','Times','serif'],
-        doc: ['"Times New Roman"','Times','serif'],
-      },
-      colors: {
-        brand: {
-          50:'#f0fdfa',100:'#ccfbf1',200:'#99f6e4',300:'#5eead4',
-          400:'#2dd4bf',500:'#14b8a6',600:'#0d9488',700:'#0f766e',
-          800:'#115e59',900:'#134e4a',
-        }
-      }
-    }
-  }
-}
-</script>
-
-<link rel="stylesheet" href="./css/base.css">
-<link rel="stylesheet" href="./css/layout.css">
-<link rel="stylesheet" href="./css/components.css">
-<link rel="stylesheet" href="./css/doc-view.css">
-<link rel="stylesheet" href="./css/utilities.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>nurseDoc — Portofolio Keperawatan Digital</title>
+  <meta name="description" content="Portofolio keperawatan digital dan dokumentasi klinis untuk perawat Indonesia, dengan dukungan tampilan web dan dokumen cetak, pencarian cerdas, dan ekspor DOCX." />
+  <meta property="og:title" content="nurseDoc — Portofolio Keperawatan Digital" />
+  <meta property="og:description" content="Portofolio keperawatan digital dan dokumentasi klinis untuk perawat Indonesia, dengan dukungan tampilan web dan dokumen cetak, pencarian cerdas, dan ekspor DOCX." />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230d9488' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z'/><path d='M14 2v4a2 2 0 0 0 2 2h4'/><path d='M10.29 10.7a2.43 2.43 0 0 0-2.66-.52c-.29.12-.56.3-.78.53a2.44 2.44 0 0 0 0 3.47L10 17.3l3.15-3.12a2.44 2.44 0 0 0 0-3.47 2.44 2.44 0 0 0-3.44 0l-.42.42-.42-.43Z'/></svg>" />
 </head>
-
 <body class="bg-slate-50 text-slate-800 font-sans antialiased">
-
-<header class="topbar">
-  <div class="topbar-inner">
-    <div class="flex items-center gap-3 shrink-0">
-      <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center shadow-md shadow-brand-500/25">
-        <i data-lucide="file-heart" class="w-5 h-5 text-white"></i>
-      </div>
-      <div class="leading-tight">
-        <div class="font-bold text-slate-900 tracking-tight text-[17px]">nurseDoc</div>
-        <div class="text-[11px] text-slate-500 -mt-0.5">Portofolio Keperawatan Digital</div>
-      </div>
-    </div>
-
-    <div class="flex-1 max-w-xl relative">
-      <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
-      <input id="globalSearch" type="text" readonly placeholder="Cari topik, diagnosa, prosedur…" class="topbar-search" />
-      <kbd class="topbar-kbd">⌘K</kbd>
-    </div>
-
-    <div class="flex items-center gap-2 shrink-0">
-      <button class="icon-btn" title="Notifikasi"><i data-lucide="bell" class="w-[18px] h-[18px]"></i></button>
-      <div class="flex items-center gap-3 pl-3 ml-1 border-l border-slate-200">
-        <div class="text-right leading-tight hidden lg:block">
-          <div class="text-[13px] font-semibold text-slate-800">Ns. Ahmad Fauzi</div>
-          <div class="text-[11px] text-slate-500">Perawat Ahli · RSUD</div>
-        </div>
-        <div class="w-9 h-9 rounded-full bg-gradient-to-br from-slate-700 to-slate-900 text-white grid place-items-center font-semibold text-sm">AF</div>
-      </div>
-    </div>
-  </div>
-</header>
-
-<div class="app-grid">
-  <aside class="col-span-12 lg:col-span-3">
-    <div class="sticky-wrap">
-      <div class="flex items-center justify-between">
-        <h2 class="text-sm font-semibold text-slate-900">Perpustakaan Dokumen</h2>
-        <span id="docCount" class="text-[11px] text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">—</span>
-      </div>
-      <div id="filterChips" class="flex flex-wrap gap-1.5" data-region="filters"></div>
-      <div id="docList" data-region="sidebar" class="space-y-2"></div>
-      <div class="tips-card">
-        <div class="flex items-start gap-2.5">
-          <div class="w-7 h-7 rounded-lg bg-brand-500/10 grid place-items-center shrink-0">
-            <i data-lucide="sparkles" class="w-3.5 h-3.5 text-brand-600"></i>
-          </div>
-          <div>
-            <p class="text-[12px] font-semibold text-brand-900">Tips Cepat</p>
-            <p class="text-[11px] text-brand-800/80 leading-relaxed mt-0.5">
-              Gunakan <b>⌘K</b> untuk mencari lintas dokumen, dan <b>📄 Dokumen</b> untuk tampilan layout cetak.
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </aside>
-
-  <main class="col-span-12 lg:col-span-6">
-    <article id="docViewer" data-region="viewer"></article>
-  </main>
-
-  <aside class="col-span-12 lg:col-span-3">
-    <div class="sticky-wrap">
-      <div id="rightMeta" data-region="toc"></div>
-    </div>
-  </aside>
-</div>
-
-<div id="searchOverlay" data-region="overlay"></div>
-
-<footer class="app-footer">
-  <p>© 2025 nurseDoc · Dibuat dengan ♥ untuk tenaga keperawatan Indonesia</p>
-  <p>v2.1 · EOMR · Data mockup</p>
-</footer>
-
-<script type="module" src="./core/app.js"></script>
+  <div id="root"></div>
+  <script type="module" src="/src/main.tsx"></script>
 </body>
 </html>
