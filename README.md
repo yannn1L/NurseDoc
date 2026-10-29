@@ -317,3 +317,21 @@ npm run lint
 # Kompilasi aplikasi untuk produksi
 npm run build
 ```
+
+---
+
+## Otomatisasi Deployment GitHub Pages (CI/CD)
+
+Proyek ini telah dikonfigurasi untuk **deployment otomatis ke GitHub Pages** menggunakan **GitHub Actions** (`.github/workflows/deploy.yml`) dan `base: './'` pada `vite.config.ts`.
+
+### Mengapa Terjadi White Screen Sebelumnya?
+Secara bawaan, Vite menyetel jalur berkas build ke root domain absolut (`/assets/...`). Ketika aplikasi di-deploy ke GitHub Pages dengan subpath repositori (contoh: `https://username.github.io/NurseDoc/`), browser gagal memuat berkas JavaScript dan CSS (404 Not Found), sehingga hanya menampilkan **layar putih kosong (white screen)**.
+
+Dengan perbaikan `base: './'` pada `vite.config.ts`, seluruh aset kini dimuat menggunakan path relatif (`./assets/...`), sehingga aplikasi berjalan sempurna baik di root domain maupun subpath repositori GitHub Pages.
+
+### Cara Mengaktifkan Otomatisasi di GitHub:
+1. Masuk ke halaman repositori di GitHub.
+2. Buka tab **Settings** > menu **Pages** (di kolom kiri).
+3. Di bawah bagian **Build and deployment**:
+   - Ubah **Source** menjadi **GitHub Actions**.
+4. Selesai! Setiap kali Anda melakukan `git push` ke cabang `main` atau `master`, GitHub Actions akan otomatis meng-compile kode, membuat SPA fallback `404.html`, dan menerbitkan website secara instan tanpa perlu build manual.
