@@ -17,6 +17,7 @@ import { WebView } from './components/WebView';
 import { DocumentView } from './components/DocumentView';
 import { RightSidebar } from './components/RightSidebar';
 import { SearchOverlay } from './components/SearchOverlay';
+import { MobileNav } from './components/MobileNav';
 import { Toast } from './components/Toast';
 
 export const App: React.FC = () => {
@@ -31,6 +32,7 @@ export const App: React.FC = () => {
   } = usePreferences(initialDocId);
 
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [mobileLibraryOpenTrigger, setMobileLibraryOpenTrigger] = useState(0);
   const { toast, showToast } = useToast();
 
   // Initialize search index once
@@ -61,14 +63,14 @@ export const App: React.FC = () => {
 
   const handleDownloadPdf = () => {
     if (!activeDoc) return;
-    showToast('Pada dialog cetak, pilih "Save as PDF".', 'file-down');
+    showToast('Pada dialog cetak, pilih opsi "Save as PDF".', 'file-down');
     printDocument(activeDoc);
   };
 
   const handleDownloadDocx = async () => {
     if (!activeDoc) return;
     try {
-      showToast('Menyusun berkas DOCX…', 'file-text');
+      showToast('Menyusun berkas Word DOCX…', 'file-text');
       await exportToDocx(activeDoc);
       showToast('Berkas DOCX berhasil diunduh.', 'file-type-2');
     } catch (err: any) {
@@ -91,10 +93,13 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
+    <div className="min-h-screen bg-slate-50 flex flex-col antialiased selection:bg-teal-100 selection:text-teal-900 pb-16 lg:pb-0">
+      {/* Top Bar Header */}
       <Topbar onOpenSearch={() => setIsSearchOpen(true)} />
 
-      <div className="app-grid flex-1">
+      {/* Main Responsive Grid Layout */}
+      <div className="app-grid flex-1 w-full">
+        {/* Desktop Left Sidebar: Document Library */}
         <Sidebar
           documents={DOCUMENTS}
           activeId={activeDoc?.id || null}
@@ -103,13 +108,23 @@ export const App: React.FC = () => {
           onSetFilter={setFilter}
         />
 
-        <main className="col-span-12 lg:col-span-6">
-          <article id="docViewer" data-region="viewer">
+        {/* Center Main Article: Document Viewer */}
+        <main className="col-span-12 lg:col-span-6 w-full min-w-0">
+          <article id="docViewer" data-region="viewer" className="w-full">
             {activeDoc ? (
               <>
-                <ViewToggle viewMode={viewMode} onChangeViewMode={setViewMode} />
+                <ViewToggle
+                  viewMode={viewMode}
+                  onChangeViewMode={setViewMode}
+                  activeDoc={activeDoc}
+                  onOpenMobileLibrary={() => setMobileLibraryOpenTrigger((c) => c + 1)}
+                />
 
-                {viewMode === 'document' && <ThumbnailStrip pages={pages} />}
+                {viewMode === 'document' && (
+                  <div className="mb-4">
+                    <ThumbnailStrip pages={pages} />
+                  </div>
+                )}
 
                 {viewMode === 'web' ? (
                   <WebView document={activeDoc} />
@@ -118,11 +133,14 @@ export const App: React.FC = () => {
                 )}
               </>
             ) : (
-              <div className="empty-state">Belum ada dokumen dipilih.</div>
+              <div className="empty-state bg-white border border-slate-200 rounded-2xl p-12">
+                Belum ada dokumen yang dipilih.
+              </div>
             )}
           </article>
         </main>
 
+        {/* Desktop Right Sidebar: Table of Contents & Info */}
         {activeDoc && (
           <RightSidebar
             document={activeDoc}
@@ -133,12 +151,30 @@ export const App: React.FC = () => {
         )}
       </div>
 
+      {/* Mobile Bottom Navigation & Action Sheets (Visible only on < 1024px) */}
+      {activeDoc && (
+        <MobileNav
+          key={mobileLibraryOpenTrigger}
+          documents={DOCUMENTS}
+          activeDoc={activeDoc}
+          filter={filter}
+          onSelectDoc={setActiveId}
+          onSetFilter={setFilter}
+          onOpenSearch={() => setIsSearchOpen(true)}
+          onPrint={handlePrint}
+          onDownloadPdf={handleDownloadPdf}
+          onDownloadDocx={handleDownloadDocx}
+        />
+      )}
+
+      {/* Global Search Overlay (⌘K) */}
       <SearchOverlay
         isOpen={isSearchOpen}
         onClose={() => setIsSearchOpen(false)}
         onSelectResult={handleSelectSearchResult}
       />
 
+      {/* Footer */}
       <footer className="app-footer">
         <div>
           <p>{APP_CONFIG.copyrightText}</p>
@@ -148,6 +184,7 @@ export const App: React.FC = () => {
         </div>
       </footer>
 
+      {/* Toast Notification */}
       <Toast toast={toast} />
     </div>
   );

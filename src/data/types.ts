@@ -5,4 +5,5 @@ export const TYPE_META: Record<DocumentType, TypeMetaItem> = {
   logbook: { label: 'Logbook', color: 'amber', icon: 'notebook-pen', desc: 'Catatan Praktik Klinik' },
   lp: { label: 'Lap. Pendahuluan', color: 'indigo', icon: 'book-open', desc: 'Tinjauan Teori & Konsep' },
   sop: { label: 'SOP', color: 'rose', icon: 'shield-check', desc: 'Standar Prosedur Operasional' },
+  resume: { label: 'Resume', color: 'sky', icon: 'file-text', desc: 'Resume Kasus Keperawatan (ODC / Rawat Jalan)' },
 };

@@ -1,4 +1,4 @@
-export type DocumentType = 'askep' | 'logbook' | 'lp' | 'sop';
+export type DocumentType = 'askep' | 'logbook' | 'lp' | 'sop' | 'resume';
 
 export interface TypeMetaItem {
   label: string;

@@ -45,6 +45,15 @@ export const THEME_COLOR_SCHEMES: Record<string, ColorScheme> = {
     badgeText: 'text-rose-700',
     badgeBorder: 'border-rose-100',
   },
+  sky: {
+    bg: 'bg-sky-50',
+    border: 'border-sky-100',
+    text: 'text-sky-700',
+    iconText: 'text-sky-600',
+    badgeBg: 'bg-sky-50',
+    badgeText: 'text-sky-700',
+    badgeBorder: 'border-sky-100',
+  },
   slate: {
     bg: 'bg-slate-50',
     border: 'border-slate-100',
