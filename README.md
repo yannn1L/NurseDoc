@@ -19,6 +19,10 @@ Aplikasi dibangun menggunakan **React 19**, **TypeScript**, **Tailwind CSS**, da
   - **Tampilan Dokumen Cetak (A4)**: Mesin pemenggalan halaman otomatis (*pagination engine*) presisi A4 dengan kop resmi, penomoran halaman, dan panel thumbnail visual.
 - **Pencarian Cerdas (⌘K / Ctrl+K)**: Indeks pencarian teks lengkap dengan pembobotan judul dokumen, diagnosa medis, kata kunci, dan bab.
 - **Daftar Isi Dinamis (TOC)**: Penanda navigasi cepat dengan pendeteksi posisi scroll otomatis (*scrollspy*).
+- **Sistem Profil Klinis Dinamis**:
+  - Pengaturan profil pengguna (Nama Lengkap & Gelar, NIM/NIRM, Institusi/Universitas, Fakultas/Prodi, Peran Klinis).
+  - Sinkronisasi real-time otomatis ke seluruh dokumen: kop cover institusi A4, label "Disusun oleh:", identitas dokumen web, dan ekspor berkas DOCX.
+  - Tersimpan persisten di `localStorage` peramban dengan opsi reset ke pengaturan default kapan saja.
 - **Ekspor Dokumen Fleksibel**:
   - **Cetak / PDF**: Dialog cetak berstandar layout A4 tanpa header browser.
   - **Unduh DOCX**: Pembuatan berkas asli Microsoft Word (`.docx`) langsung di sisi peramban.

@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { DOCUMENTS } from './data/documents';
-import { NurseDocument } from './types';
 import { paging } from './utils/paging';
 import { searchEngine } from './utils/search';
 import { printDocument } from './utils/printExport';
@@ -9,6 +8,8 @@ import { APP_CONFIG } from './constants/app';
 import { usePreferences } from './hooks/usePreferences';
 import { useToast } from './hooks/useToast';
 import { useKeyboardShortcut } from './hooks/useKeyboardShortcut';
+import { useProfile } from './hooks/useProfile';
+import { UserProfile } from './constants/user';
 import { Topbar } from './components/Topbar';
 import { Sidebar } from './components/Sidebar';
 import { ViewToggle } from './components/ViewToggle';
@@ -18,6 +19,7 @@ import { DocumentView } from './components/DocumentView';
 import { RightSidebar } from './components/RightSidebar';
 import { SearchOverlay } from './components/SearchOverlay';
 import { MobileNav } from './components/MobileNav';
+import { EditProfileModal } from './components/EditProfileModal';
 import { Toast } from './components/Toast';
 
 export const App: React.FC = () => {
@@ -32,13 +34,23 @@ export const App: React.FC = () => {
   } = usePreferences(initialDocId);
 
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [mobileLibraryOpenTrigger, setMobileLibraryOpenTrigger] = useState(0);
   const { toast, showToast } = useToast();
 
-  // Initialize search index once
+  // Dynamic Profile state & document auto-synchronization
+  const {
+    profile,
+    updateProfile,
+    resetProfile,
+    enrichedDocuments,
+    activeEnrichedDoc,
+  } = useProfile(DOCUMENTS, activeId);
+
+  // Initialize search index with profile-enriched documents
   useEffect(() => {
-    searchEngine.build(DOCUMENTS);
-  }, []);
+    searchEngine.build(enrichedDocuments);
+  }, [enrichedDocuments]);
 
   // Keyboard shortcut: ⌘K or Ctrl+K to open search
   useKeyboardShortcut({
@@ -47,9 +59,7 @@ export const App: React.FC = () => {
     onTrigger: () => setIsSearchOpen(true),
   });
 
-  const activeDoc: NurseDocument = useMemo(() => {
-    return DOCUMENTS.find((d) => d.id === activeId) || DOCUMENTS[0];
-  }, [activeId]);
+  const activeDoc = activeEnrichedDoc;
 
   const pages = useMemo(() => {
     if (!activeDoc) return [];
@@ -79,6 +89,16 @@ export const App: React.FC = () => {
     }
   };
 
+  const handleSaveProfile = (updated: Partial<UserProfile>) => {
+    updateProfile(updated);
+    showToast('Profil & seluruh dokumen berhasil diperbarui!', 'check-circle');
+  };
+
+  const handleResetProfile = () => {
+    resetProfile();
+    showToast('Profil dikembalikan ke pengaturan awal.', 'rotate-ccw');
+  };
+
   const handleSelectSearchResult = (docId: string, sectionId: string) => {
     setIsSearchOpen(false);
     if (docId !== activeId) {
@@ -94,14 +114,18 @@ export const App: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col antialiased selection:bg-teal-100 selection:text-teal-900 pb-16 lg:pb-0">
-      {/* Top Bar Header */}
-      <Topbar onOpenSearch={() => setIsSearchOpen(true)} />
+      {/* Top Bar Header with Interactive Profile Trigger */}
+      <Topbar
+        onOpenSearch={() => setIsSearchOpen(true)}
+        userProfile={profile}
+        onOpenEditProfile={() => setIsProfileModalOpen(true)}
+      />
 
       {/* Main Responsive Grid Layout */}
       <div className="app-grid flex-1 w-full">
         {/* Desktop Left Sidebar: Document Library */}
         <Sidebar
-          documents={DOCUMENTS}
+          documents={enrichedDocuments}
           activeId={activeDoc?.id || null}
           currentFilter={filter}
           onSelectDoc={setActiveId}
@@ -151,11 +175,11 @@ export const App: React.FC = () => {
         )}
       </div>
 
-      {/* Mobile Bottom Navigation & Action Sheets (Visible only on < 1024px) */}
+      {/* Mobile Bottom Navigation & Action Sheets (Visible on screens < 1024px) */}
       {activeDoc && (
         <MobileNav
           key={mobileLibraryOpenTrigger}
-          documents={DOCUMENTS}
+          documents={enrichedDocuments}
           activeDoc={activeDoc}
           filter={filter}
           onSelectDoc={setActiveId}
@@ -164,8 +188,19 @@ export const App: React.FC = () => {
           onPrint={handlePrint}
           onDownloadPdf={handleDownloadPdf}
           onDownloadDocx={handleDownloadDocx}
+          userProfile={profile}
+          onOpenEditProfile={() => setIsProfileModalOpen(true)}
         />
       )}
+
+      {/* Profile Editing Modal Dialog */}
+      <EditProfileModal
+        isOpen={isProfileModalOpen}
+        onClose={() => setIsProfileModalOpen(false)}
+        currentProfile={profile}
+        onSave={handleSaveProfile}
+        onReset={handleResetProfile}
+      />
 
       {/* Global Search Overlay (⌘K) */}
       <SearchOverlay

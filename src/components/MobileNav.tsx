@@ -18,6 +18,8 @@ import { TYPE_META } from '../data/types';
 import { getColorScheme } from '../constants/theme';
 import { getLucideIcon } from './DocIcon';
 
+import { UserProfile } from '../constants/user';
+
 interface MobileNavProps {
   documents: NurseDocument[];
   activeDoc: NurseDocument;
@@ -28,6 +30,8 @@ interface MobileNavProps {
   onPrint: () => void;
   onDownloadPdf: () => void;
   onDownloadDocx: () => void;
+  userProfile?: UserProfile;
+  onOpenEditProfile?: () => void;
 }
 
 type MobileDrawer = 'none' | 'library' | 'toc' | 'actions';
@@ -42,6 +46,8 @@ export const MobileNav: React.FC<MobileNavProps> = ({
   onPrint,
   onDownloadPdf,
   onDownloadDocx,
+  userProfile,
+  onOpenEditProfile,
 }) => {
   const [activeDrawer, setActiveDrawer] = useState<MobileDrawer>('none');
 
@@ -229,7 +235,36 @@ export const MobileNav: React.FC<MobileNavProps> = ({
 
             {/* ================= DRAWER 1: PERPUSTAKAAN DOKUMEN ================= */}
             {activeDrawer === 'library' && (
-              <div className="p-4 overflow-y-auto space-y-4">
+              <div className="p-4 overflow-y-auto space-y-3.5">
+                {/* Profile Card Trigger */}
+                {userProfile && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveDrawer('none');
+                      if (onOpenEditProfile) onOpenEditProfile();
+                    }}
+                    className="w-full flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-teal-50 to-slate-50 border border-teal-200/80 text-left active:scale-[0.99] transition-all"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-full bg-slate-800 text-white grid place-items-center font-bold text-xs shrink-0">
+                        {userProfile.avatarText}
+                      </div>
+                      <div className="min-w-0">
+                        <div className="text-xs font-bold text-slate-800 truncate">
+                          {userProfile.name}
+                        </div>
+                        <div className="text-[10.5px] text-slate-500 truncate">
+                          {userProfile.nim ? `NIM: ${userProfile.nim} · ` : ''}{userProfile.institution}
+                        </div>
+                      </div>
+                    </div>
+                    <span className="text-[10.5px] font-bold text-teal-700 bg-white border border-teal-200 px-2 py-0.5 rounded shadow-2xs shrink-0 ml-2">
+                      Ubah
+                    </span>
+                  </button>
+                )}
+
                 {/* Horizontal Category Chips */}
                 <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
                   <button
